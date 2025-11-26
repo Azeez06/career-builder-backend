@@ -11,17 +11,15 @@ connectDB();
 
 const app = express();
 
-// ✔ FIXED CORS (allows your frontend + localhost + mobile)
-app.use(
-  cors({
-    origin: [
-      "http://localhost:5173", // local dev
-      "https://career-builder-frontend.vercel.app", // your deployed frontend
-      "https://*.vercel.app" // optional wildcard for preview deployments
-    ],
-    credentials: true,
-  })
-);
+
+app.use(cors({
+  origin: [
+    "https://my-real-final-plp-project-8q5a.vercel.app", 
+    "http://localhost:5173"
+  ],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
 
 app.use(express.json());
 
