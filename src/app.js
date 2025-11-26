@@ -11,17 +11,28 @@ connectDB();
 
 const app = express();
 
-app.use(cors());
+// ✔ FIXED CORS (allows your frontend + localhost + mobile)
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173", // local dev
+      "https://career-builder-frontend.vercel.app", // your deployed frontend
+      "https://*.vercel.app" // optional wildcard for preview deployments
+    ],
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 
-// ROUTES MUST BE BEFORE 404
+// ROUTES BEFORE 404
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
 
-// 404 + error handlers MUST BE LAST
+// 404 + error handler
 app.use(notFound);
 app.use(errorHandler);
 
