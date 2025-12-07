@@ -1,21 +1,23 @@
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";  // ✅ IMPORT dotenv
+import dotenv from "dotenv";  // ✅ Import dotenv
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import resumeRoutes from "./routes/resumeRoutes.js";
+import portfolioRoutes from "./routes/portfolioRoutes.js"; // ✅ Import portfolio routes
 import { notFound, errorHandler } from "./middleware/errorMiddleware.js";
 
-dotenv.config(); // ✅ CONFIGURE dotenv
+dotenv.config(); // ✅ Configure dotenv
 
 connectDB();
 
 const app = express();
 
-// ⚡ Add this BEFORE routes
+// ⚡ Body parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ⚡ CORS configuration
 app.use(cors({
   origin: [
     "https://my-real-final-plp-project-8q5a.vercel.app",
@@ -28,9 +30,10 @@ app.use(cors({
   credentials: true
 }));
 
-// ROUTES
+// ⚡ ROUTES
 app.use("/api/auth", authRoutes);
 app.use("/api/resume", resumeRoutes);
+app.use("/api/portfolio", portfolioRoutes); // ✅ Add portfolio routes
 
 // Health check
 app.get("/api/health", (req, res) => res.json({ status: "ok" }));
