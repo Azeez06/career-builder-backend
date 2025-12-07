@@ -142,3 +142,112 @@ export const deleteResume = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
+/**
+ * PUT /api/portfolio/save
+ * Save or update portfolio data
+ */
+export const savePortfolio = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    let resume = await Resume.findOne({ user: userId });
+    if (!resume) {
+      resume = await Resume.create({ user: userId });
+    }
+
+    resume.portfolio = req.body;  
+    resume.updatedAt = Date.now();
+
+    await resume.save();
+
+    return res.json({
+      message: "Portfolio saved successfully",
+      portfolio: resume.portfolio,
+    });
+
+  } catch (err) {
+    console.error("savePortfolio error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+/**
+ * PUT /api/portfolio/set-username
+ */
+export const setPortfolioUsername = async (req, res) => {
+  try {
+    const userId = req.user._id;
+    const { username } = req.body;
+
+    if (!username)
+      return res.status(400).json({ message: "Username is required" });
+
+    // Check if username already exists for another user
+    const exists = await Resume.findOne({
+      publicUsername: username,
+      user: { $ne: userId }
+    });
+
+    if (exists) {
+      return res.status(400).json({ message: "Username already taken" });
+    }
+
+    const resume = await Resume.findOneAndUpdate(
+      { user: userId },
+      { publicUsername: username, isPublic: true },
+      { new: true }
+    );
+
+    return res.json({
+      message: "Portfolio username set",
+      username: resume.publicUsername
+    });
+
+  } catch (err) {
+    console.error("setPortfolioUsername error:", err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+/**
+ * GET /api/portfolio/view/:email
+ * Public portfolio page
+ */
+export const getPublicPortfolio = async (req, res) => {
+  try {
+    const email = req.params.email;
+
+    // Find the user first by email
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Find the resume linked to this user
+    const resume = await Resume.findOne({
+      user: user._id,
+      isPublic: true,
+    });
+
+    if (!resume) {
+      return res.status(404).json({ message: "Portfolio not found" });
+    }
+
+    return res.json({
+      profile: resume.portfolio?.profile,
+      services: resume.portfolio?.services,
+      projects: resume.portfolio?.projects,
+      user: {
+        fullName: user.fullName,
+        email: user.email,
+      },
+    });
+
+  } catch (err) {
+    console.error("getPublicPortfolio error:", err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
