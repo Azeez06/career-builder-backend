@@ -1,20 +1,22 @@
 // src/controllers/portfolioController.js
 import Portfolio from "../models/Portfolio.js";
-import User from "../models/User.js";
 
 // 📌 Save or update portfolio data
 export const savePortfolio = async (req, res) => {
   try {
     const userId = req.user._id;
 
+    // Find existing portfolio or create a new one
     let portfolio = await Portfolio.findOne({ user: userId });
     if (!portfolio) {
       portfolio = await Portfolio.create({ user: userId });
     }
 
+    // Update fields from request body
     portfolio.profile = req.body.profile || portfolio.profile;
     portfolio.services = req.body.services || portfolio.services;
     portfolio.projects = req.body.projects || portfolio.projects;
+    portfolio.contact = req.body.contact || portfolio.contact; // ✅ save contact
     portfolio.updatedAt = Date.now();
 
     await portfolio.save();
@@ -26,7 +28,7 @@ export const savePortfolio = async (req, res) => {
 
   } catch (err) {
     console.error("savePortfolio error:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
@@ -60,7 +62,7 @@ export const setPortfolioUsername = async (req, res) => {
 
   } catch (err) {
     console.error("setPortfolioUsername error:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
 
@@ -69,13 +71,15 @@ export const getPublicPortfolio = async (req, res) => {
   try {
     const username = req.params.username;
 
-    const portfolio = await Portfolio.findOne({ publicUsername: username, isPublic: true }).populate("user", "fullName email");
+    const portfolio = await Portfolio.findOne({ publicUsername: username, isPublic: true })
+                                     .populate("user", "fullName email");
     if (!portfolio) return res.status(404).json({ message: "Portfolio not found" });
 
     return res.json({
       profile: portfolio.profile,
       services: portfolio.services,
       projects: portfolio.projects,
+      contact: portfolio.contact,
       user: {
         fullName: portfolio.user.fullName,
         email: portfolio.user.email,
@@ -84,6 +88,6 @@ export const getPublicPortfolio = async (req, res) => {
 
   } catch (err) {
     console.error("getPublicPortfolio error:", err);
-    return res.status(500).json({ message: "Server error" });
+    return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
