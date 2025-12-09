@@ -23,7 +23,8 @@ app.use(cors({
     "https://my-real-final-plp-project-8q5a.vercel.app",
     "https://my-real-final-plp-pro-git-2df1a0-azeezsulaiman05-9367s-projects.vercel.app",
     "https://my-real-final-plp-project-8q5a-h020aldie.vercel.app",
-    "http://localhost:5173"
+    "http://localhost:5173",
+    "http://localhost:5174"
   ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
