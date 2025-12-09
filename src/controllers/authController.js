@@ -23,11 +23,9 @@ export const registerUser = async (req, res) => {
     const hashed = await bcrypt.hash(password, salt);
 
     // Create user (username generated automatically via User model pre-save)
-    const user = await User.create({
-      fullName,
-      email,
-      password: hashed
-    });
+   const user = new User({ fullName, email, password: hashed });
+await user.save();
+
 
     return res.status(201).json({
       message: "Registration successful",

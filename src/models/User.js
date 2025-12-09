@@ -16,11 +16,11 @@ const userSchema = new mongoose.Schema(
 );
 
 // Pre-save hook to generate username
-userSchema.pre("save", function (next) {
+userSchema.pre("validate", function () {
   if (this.fullName && !this.username) {
     this.username = slugify(this.fullName, { lower: true, strict: true });
   }
-  next();
 });
+
 
 export default mongoose.model("User", userSchema);
