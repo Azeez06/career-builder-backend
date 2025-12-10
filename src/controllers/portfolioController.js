@@ -16,7 +16,7 @@ export const savePortfolio = async (req, res) => {
     portfolio.profile = req.body.profile || portfolio.profile;
     portfolio.services = req.body.services || portfolio.services;
     portfolio.projects = req.body.projects || portfolio.projects;
-    portfolio.contact = req.body.contact || portfolio.contact; // ✅ save contact
+    portfolio.contact = req.body.contact || portfolio.contact;
     portfolio.updatedAt = Date.now();
 
     await portfolio.save();
@@ -31,6 +31,7 @@ export const savePortfolio = async (req, res) => {
     return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+
 
 // 📌 Set public username for portfolio
 export const setPortfolioUsername = async (req, res) => {
@@ -66,14 +67,20 @@ export const setPortfolioUsername = async (req, res) => {
   }
 };
 
+
 // 📌 View public portfolio by username
 export const getPublicPortfolio = async (req, res) => {
   try {
     const username = req.params.username;
 
-    const portfolio = await Portfolio.findOne({ publicUsername: username, isPublic: true })
-                                     .populate("user", "fullName email");
-    if (!portfolio) return res.status(404).json({ message: "Portfolio not found" });
+    const portfolio = await Portfolio.findOne({
+      publicUsername: username,
+      isPublic: true
+    }).populate("user", "fullName email");
+
+    if (!portfolio) {
+      return res.status(404).json({ message: "Portfolio not found" });
+    }
 
     return res.json({
       profile: portfolio.profile,
@@ -83,7 +90,7 @@ export const getPublicPortfolio = async (req, res) => {
       user: {
         fullName: portfolio.user.fullName,
         email: portfolio.user.email,
-      },
+      }
     });
 
   } catch (err) {
