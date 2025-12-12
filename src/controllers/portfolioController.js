@@ -98,3 +98,24 @@ export const getPublicPortfolio = async (req, res) => {
     return res.status(500).json({ message: "Server error", error: err.message });
   }
 };
+// 📌 Get logged-in user's portfolio
+export const getMyPortfolio = async (req, res) => {
+  try {
+    const userId = req.user._id;
+
+    const portfolio = await Portfolio.findOne({ user: userId });
+
+    if (!portfolio) {
+      return res.json({
+        message: "No portfolio found",
+        portfolio: null
+      });
+    }
+
+    return res.json(portfolio);
+
+  } catch (err) {
+    console.error("getMyPortfolio error:", err);
+    return res.status(500).json({ message: "Server error", error: err.message });
+  }
+};
